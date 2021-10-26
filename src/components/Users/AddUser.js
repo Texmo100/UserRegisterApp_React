@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import Wrapper from '../Helpers/Wrapper'
 import ErrorModal from '../UI/ErrorModal'
 import Card from '../UI/Card'
 import Button from '../UI/Button'
@@ -7,21 +8,26 @@ import styles from './AddUser.module.css'
 
 
 const AddUser = props => {
+    // Use Ref references
+    const nameInputRef = useRef()
+    const ageInputRef = useRef()
+
     // Use state variables
-    const [enteredUsername, setEnteredUsername] = useState('')
-    const [enteredAge, setEnteredAge] = useState('')
     const [error, setError] = useState()
 
     const addUserHandler = (event) => {
         event.preventDefault()
 
-        if ((enteredUsername.trim().length === 0) || (enteredAge.trim().length === 0)) {
+        const enteredName = nameInputRef.current.value
+        const enteredUserAge = ageInputRef.current.value
+
+        if ((enteredName.trim().length === 0) || (enteredUserAge.trim().length === 0)) {
             setError({
                 title: 'Invalid input',
                 message: 'Please enter a valid name and age (non-empty values).'
             })
             return;
-        } else if (+enteredAge < 1) {
+        } else if (+enteredUserAge < 1) {
             setError({
                 title: 'Invalid age',
                 message: 'Please enter a valid age (it should be greater than 0).'
@@ -30,8 +36,8 @@ const AddUser = props => {
         } else {
             const userData = {
                 id: Math.random().toString(),
-                name: enteredUsername,
-                age: enteredAge
+                name: enteredName,
+                age: enteredUserAge
             }
             props.onAddUser(userData)
             console.log(userData)
@@ -39,28 +45,17 @@ const AddUser = props => {
         }
     }
 
-    const usernameChangeHandler = event => {
-        const { value } = event.target
-        setEnteredUsername(value)
-    }
-
-    const ageChangeHandler = event => {
-        const { value } = event.target
-        setEnteredAge(value)
-    }
-
-    // input cleaner function who is in charge to clean up the input fields
-    const inputCleaner = () => {
-        setEnteredUsername('')
-        setEnteredAge('')
-    }
-
     const errorHandler = () => {
         setError(null)
     }
 
+    const inputCleaner = () => {
+        nameInputRef.current.value = ''
+        ageInputRef.current.value = ''
+    }
+
     return (
-        <div>
+        <Wrapper>
             {
                 error && <ErrorModal title={error.title} message={error.message} onConfirm={errorHandler} />
             }
@@ -70,22 +65,20 @@ const AddUser = props => {
                     <input
                         id='username'
                         type='text'
-                        value={enteredUsername}
-                        onChange={usernameChangeHandler}
+                        ref={nameInputRef}
                     />
 
                     <label htmlFor='age'>Age</label>
                     <input
                         id='age'
                         type='number'
-                        value={enteredAge}
-                        onChange={ageChangeHandler}
+                        ref={ageInputRef}
                     />
 
                     <Button type='submit'>Add user</Button>
                 </form>
             </Card>
-        </div>
+        </Wrapper>
     )
 }
 
